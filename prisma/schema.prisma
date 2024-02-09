@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Place {
+  id      String @id @default(cuid())
+  name    String
+  address String
+
+  workers       Worker[]
+  opening_hours OpeningHours[]
+}
+
+model OpeningHours {
+  id          Int     @id @default(autoincrement())
+  day_of_week String // day of week
+  range_hours String
+  placeId     String?
+  workerId    String?
+
+  place  Place?  @relation(fields: [placeId], references: [id])
+  worker Worker? @relation(fields: [workerId], references: [id])
+}
+
+model Worker {
+  id              String  @id @default(cuid())
+  username        String
+  name            String
+  password        String
+  password_salt   String
+  primary_email   String
+  email_confirmed String
+  address         String?
+  delivery        Boolean
+  placeId         String?
+
+  place       Place?         @relation(fields: [placeId], references: [id])
+  services    Services[]
+  schedule    Schedule[]
+  openingHour OpeningHours[]
+
+  @@index([username, name])
+}
+
+model Client {
+  id              String     @id @default(cuid())
+  username        String     @unique
+  full_name       String
+  password        String
+  password_salt   String
+  primary_email   String     @unique
+  email_confirmed Boolean
+  phone           String
+  schedule        Schedule[]
+
+  @@index([username])
+}
+
+model Services {
+  id       Int     @id @default(autoincrement())
+  name     String
+  price    Float
+  time     Int     @default(30)
+  workerId String?
+
+  worker  Worker?  @relation(fields: [workerId], references: [id])
+  reviews Review[]
+}
+
+model Review {
+  id         Int    @id @default(autoincrement())
+  comment    String
+  rating     Float
+  servicesId Int
+
+  service Services @relation(fields: [servicesId], references: [id])
+}
+
+model Schedule {
+  id          String  @id @default(cuid())
+  date        String // 12/02/2024
+  hour        String // "10:30"
+  where       String?
+  observation String?
+  workerId    String
+  clientId    String
+
+  worker Worker @relation(fields: [workerId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@unique([date, hour, workerId])
+  @@unique([date, hour, clientId])
+}
