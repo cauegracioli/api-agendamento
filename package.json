@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/cookie": "^9.3.1",
-    "@prisma/client": "5.9.1",
+    "@prisma/client": "5.10.2",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.1",
     "fastify": "^4.26.0",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.11.17",
-    "prisma": "^5.9.1",
+    "prisma": "^5.10.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }

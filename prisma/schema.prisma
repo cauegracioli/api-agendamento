@@ -18,33 +18,14 @@ model User {
   password_salt String
   primary_email String   @unique
   phone         String
-  ownerId       String?
   workerId      String?
   clientId      String?
   userType      UserType
-
-  client Client? @relation(fields: [clientId], references: [id])
-  worker Worker? @relation(fields: [workerId], references: [id])
-  owner  Owner?  @relation(fields: [ownerId], references: [id])
+  worker        Worker?
+  client        Client?
 
   @@unique([username, primary_email])
   @@index([username])
-}
-
-model Owner {
-  id    String  @id @default(cuid())
-  place Place[]
-  user  User[]
-}
-
-model Place {
-  id            String         @id @default(cuid())
-  name          String
-  address       String
-  ownerId       String?
-  workers       Worker[]
-  opening_hours OpeningHours[]
-  owner         Owner?         @relation(fields: [ownerId], references: [id])
 }
 
 model OpeningHours {
@@ -54,28 +35,27 @@ model OpeningHours {
   placeId     String?
   workerId    String?
 
-  place  Place?  @relation(fields: [placeId], references: [id])
   worker Worker? @relation(fields: [workerId], references: [id])
 }
 
 model Worker {
-  id       String  @id @default(cuid())
-  address  String?
-  delivery Boolean
-  placeId  String?
-
-  place       Place?         @relation(fields: [placeId], references: [id])
+  id          String         @id @default(cuid())
+  address     String?
+  delivery    Boolean
+  userId      String         @unique
+  user        User           @relation(fields: [userId], references: [id])
   services    Services[]
   schedule    Schedule[]
   openingHour OpeningHours[]
-  user        User[]
 }
 
 model Client {
   id       String     @id @default(cuid())
+  address  String?
+  userId   String     @unique
+  user     User       @relation(fields: [userId], references: [id])
   schedule Schedule[]
   review   Review[]
-  user     User[]
 }
 
 model Services {
@@ -117,7 +97,6 @@ model Schedule {
 }
 
 enum UserType {
-  OWNER
   WORKER
   CLIENT
 }
