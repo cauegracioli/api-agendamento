@@ -10,13 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Place {
-  id      String @id @default(cuid())
-  name    String
-  address String
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  full_name     String
+  password      String
+  password_salt String
+  primary_email String   @unique
+  phone         String
+  workerId      String?
+  clientId      String?
+  userType      UserType
+  worker        Worker?
+  client        Client?
 
-  workers       Worker[]
-  opening_hours OpeningHours[]
+  @@unique([username, primary_email])
+  @@index([username])
 }
 
 model OpeningHours {
@@ -26,42 +35,27 @@ model OpeningHours {
   placeId     String?
   workerId    String?
 
-  place  Place?  @relation(fields: [placeId], references: [id])
   worker Worker? @relation(fields: [workerId], references: [id])
 }
 
 model Worker {
-  id              String  @id @default(cuid())
-  username        String
-  name            String
-  password        String
-  password_salt   String
-  primary_email   String
-  email_confirmed String
-  address         String?
-  delivery        Boolean
-  placeId         String?
-
-  place       Place?         @relation(fields: [placeId], references: [id])
+  id          String         @id @default(cuid())
+  address     String?
+  delivery    Boolean
+  userId      String         @unique
+  user        User           @relation(fields: [userId], references: [id])
   services    Services[]
   schedule    Schedule[]
   openingHour OpeningHours[]
-
-  @@index([username, name])
 }
 
 model Client {
-  id              String     @id @default(cuid())
-  username        String     @unique
-  full_name       String
-  password        String
-  password_salt   String
-  primary_email   String     @unique
-  email_confirmed Boolean
-  phone           String
-  schedule        Schedule[]
-
-  @@index([username])
+  id       String     @id @default(cuid())
+  address  String?
+  userId   String     @unique
+  user     User       @relation(fields: [userId], references: [id])
+  schedule Schedule[]
+  review   Review[]
 }
 
 model Services {
@@ -80,7 +74,9 @@ model Review {
   comment    String
   rating     Float
   servicesId Int
+  clientId   String
 
+  client  Client   @relation(fields: [clientId], references: [id])
   service Services @relation(fields: [servicesId], references: [id])
 }
 
@@ -98,4 +94,9 @@ model Schedule {
 
   @@unique([date, hour, workerId])
   @@unique([date, hour, clientId])
+}
+
+enum UserType {
+  WORKER
+  CLIENT
 }
