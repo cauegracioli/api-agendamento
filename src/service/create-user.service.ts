@@ -4,22 +4,6 @@ import { genSalt, hash } from "bcrypt";
 import z from "zod";
 import { IUserRequest } from "../interfaces/user";
 import { FastifyReply } from "fastify";
-import { User, UserType } from "@prisma/client";
-
-interface UserData extends Omit<User, "id"> {
-  username: string;
-  full_name: string;
-  password: string;
-  password_salt: string;
-  phone: string;
-  primary_email: string;
-  userType: UserType;
-  clientId: string | null;
-}
-
-function createNewUser() {}
-
-function createNewWorker() {}
 
 export async function createUserService(
   params: IUserRequest,
