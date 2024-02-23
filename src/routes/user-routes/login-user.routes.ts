@@ -8,9 +8,13 @@ export async function loginUserRoute(app: FastifyInstance) {
     try {
       const data = request.body as IUserRequest;
 
-      const response = await userLoginService(data, reply);
+      const { user, token, refresh } = await userLoginService(data, reply);
 
-      return reply.status(200).send({ token: response });
+      return reply
+        .status(200)
+        .cookie("refreshToken", refresh)
+        .header("authorization", token)
+        .send(user);
     } catch (error) {
       console.log(error);
       handleServerError(reply, error);

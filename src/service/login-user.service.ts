@@ -60,9 +60,21 @@ export async function userLoginService(
 
   const secretKey = process.env.SECRET_KEY;
 
-  const token = jwt.sign({ userId: user.id }, secretKey, {
-    expiresIn: "24h",
+  const userTokenData = {
+    id: user.id,
+    username: user.username,
+    fullname: user.full_name,
+  };
+
+  const token = jwt.sign(userTokenData, secretKey, {
+    subject: user.id,
+    expiresIn: "20s",
   });
 
-  return token;
+  const refresh = jwt.sign(userTokenData, secretKey, {
+    subject: user.id,
+    expiresIn: "1d",
+  });
+
+  return { user: userTokenData, token, refresh };
 }
