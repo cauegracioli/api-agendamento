@@ -1,5 +1,11 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { verify, sign } from "jsonwebtoken";
+import {
+  verify,
+  Secret,
+  decode,
+  GetPublicKeyOrSecret,
+  JwtPayload,
+} from "jsonwebtoken";
 
 export function authenticate(
   request: FastifyRequest,
@@ -16,7 +22,12 @@ export function authenticate(
   const [, token] = authToken.split(" ");
 
   try {
-    verify(token, process.env.SECRET_KEY);
+    verify(token, process.env.SECRET_KEY as Secret);
+
+    const { iss, aud } = decode(token) as JwtPayload;
+
+    if (iss !== process.env.JWT_ISSUER && aud !== process.env.JWT_AUDIENCE)
+      return reply.status(401).send("Token inválido");
 
     return done();
   } catch (error) {
