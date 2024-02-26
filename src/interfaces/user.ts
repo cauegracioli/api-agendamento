@@ -1,14 +1,17 @@
-import { Prisma, User } from "@prisma/client";
-import { FastifyRequest } from "fastify";
-
-export interface IUserRequest extends FastifyRequest {
-  body: Prisma.UserCreateInput;
-  authUser: User;
+enum UserType {
+  "CLIENT",
+  "WORKER",
 }
 
-export interface IUserLogin extends FastifyRequest {
-  body: {
-    username: string;
-    password: string;
-  };
+export interface IUserRequest {
+  username: string;
+  email: string;
+  userType: UserType;
+  address?: string;
+  delivery?: boolean;
+}
+
+export interface IUserLogin {
+  username: string;
+  email: string;
 }
